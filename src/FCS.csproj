@@ -2,10 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <Authors>Lvwl@outlook.com</Authors>
-    <Company>Lvwl@outlook.com</Company>
+    <Authors>Lvwl-CN@outlook.com</Authors>
+    <Company>Lvwl-CN@outlook.com</Company>
     <Description>FCS文件解析库</Description>
-    <PackageProjectUrl>https://github.com/Lvwl-CN/FCSReader</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/Lvwl-CN/FCS</PackageProjectUrl>
   </PropertyGroup>
 
 </Project>
