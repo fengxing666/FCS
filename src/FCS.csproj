@@ -4,8 +4,19 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <Authors>Lvwl-CN@outlook.com</Authors>
     <Company>Lvwl-CN@outlook.com</Company>
-    <Description>FCS文件解析库</Description>
+    <Description>流式细胞仪数据文件FCS解析库</Description>
     <PackageProjectUrl>https://github.com/Lvwl-CN/FCS</PackageProjectUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageLicenseExpression></PackageLicenseExpression>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
 
 </Project>
