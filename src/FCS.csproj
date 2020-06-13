@@ -10,6 +10,7 @@
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression></PackageLicenseExpression>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageTags>FCS C# .NETStandard 2.1 流式细胞仪数据文件解析库</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
