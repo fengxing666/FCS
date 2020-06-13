@@ -27,7 +27,7 @@ IEnumerable<IFCS> fcslist = FCS.Factory.ReadFCSFile(@"C:\test.fcs");
  | F1 | 最大值 | double | |
 
 ## Amplification：放大类型参数 PnE
- ***公式：v=10^（PowerNumber * xc /（PnR））* ZeroValue***
+ ***公式：v=10^（PowerNumber * xc /（PnR））* ZeroValue**
  | 属性 | 含义 | 类型 | 说明 |
  | --- | --- | --- | --- |
  | PowerNumber | 10的次方数 | double | |
