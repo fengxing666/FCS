@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <Authors>Lvwl-CN@outlook.com</Authors>
-    <Company>Lvwl-CN@outlook.com</Company>
+    <Authors>Lvwl</Authors>
+    <Company>Lvwl</Company>
     <Description>流式细胞仪数据文件FCS解析库</Description>
     <PackageProjectUrl>https://github.com/Lvwl-CN/FCS</PackageProjectUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
