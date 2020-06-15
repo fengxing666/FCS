@@ -10,10 +10,10 @@ IEnumerable<IFCS> fcslist = FCS.Factory.ReadFCSFile(@"C:\test.fcs");
 ## IFCS：主要输出对象，实现类有FCS3_0、FCS3_1
  | 属性 | 含义 | 类型 | 说明 |
  | --- | --- | --- | --- |
- | TextSegment | 文本段和补充文本段 | Dictionary<string, string> | 文本段和补充文本段混合在一起，不受FCS文件的文本段长度限制 |
- | AnalysisSegment | 解析文本段 | Dictionary<string, string> | |
- | DataSegment | 数据段 | IEnumerable<IList> | IList里面的内容可能是double、float、int |
- | Params | 参数集合 | IList<Param> | FCS文件里面记录的参数集合，PAR就是该集合的长度，Param类包含了名称、放大类型、增益等属性 |
+ | TextSegment | 文本段和补充文本段 | Dictionary< string, string > | 文本段和补充文本段混合在一起，不受FCS文件的文本段长度限制 |
+ | AnalysisSegment | 解析文本段 | Dictionary< string, string > | |
+ | DataSegment | 数据段 | IEnumerable< IList > | IList里面的内容可能是double、float、int |
+ | Params | 参数集合 | IList< Param > | FCS文件里面记录的参数集合，PAR就是该集合的长度，Param类包含了名称、放大类型、增益等属性 |
  | Version | FCS文件的版本 | string | FCS3.0/FCS3.1 |
  | PAR | 参数个数 | uint | 决定Params的长度 |
  | TOT | 数据量 | ulong | 数据段共有多少数据量 |
