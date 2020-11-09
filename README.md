@@ -52,6 +52,6 @@ IEnumerable<IFCS> fcslist = FCS.Factory.ReadFCSFile(@"C:\test.fcs");
  | PnT | 探测器类型 | string | |
  | PnV | 探测器电压 | double | |
  
-数据格式文件可在此下载 [流式细胞仪数据格式](https://download.csdn.net/download/lwlcctv/12399434)
+数据格式文件可在此下载 [Github](https://github.com/Lvwl-CN/FCS/tree/master/doc)、[Gitee](https://gitee.com/Lvwl-CN/FCS/tree/master/doc)
 
 FCS文件可在此下载 [flowrepository](https://flowrepository.org/)
