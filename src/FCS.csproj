@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net40;net5;</TargetFrameworks>
     <Authors>Lvwl</Authors>
     <Company>Lvwl</Company>
     <Description>流式细胞仪数据文件FCS解析库</Description>
@@ -9,8 +9,11 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageLicenseFile></PackageLicenseFile>
-    <PackageTags>FCS C# .NETStandard 2.1 流式细胞仪数据文件解析库</PackageTags>
+    <PackageTags>FCS C# .NET 流式细胞仪数据文件解析库</PackageTags>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="OldIFCS.cs" />
+  </ItemGroup>
 
 </Project>

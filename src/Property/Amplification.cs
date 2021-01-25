@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace FCS.Property
+﻿namespace FCS.Property
 {
     /// <summary>
     /// 放大类型参数 PnE
@@ -42,6 +38,11 @@ namespace FCS.Property
             else this.PowerNumber = 0d;
             if (double.TryParse(spirts[1], out double zeroValue)) this.ZeroValue = zeroValue;
             else this.ZeroValue = 0d;
+        }
+
+        public override string ToString()
+        {
+            return string.Concat(PowerNumber, ",", ZeroValue);
         }
 
     }

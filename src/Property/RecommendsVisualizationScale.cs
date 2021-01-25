@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace FCS.Property
+﻿namespace FCS.Property
 {
     /// <summary>
     /// 推荐的可视化比例 PnD
@@ -35,17 +31,41 @@ namespace FCS.Property
                 this.F1 = this.F2 = 0d;
                 return;
             }
-            this.Type = spirts[0].ToUpper() switch
+            switch (spirts[0].ToUpper())
             {
-                "LINEAR" => RecommendsVisualizationScaleType.Linear,
-                "LOGARITHMIC" => RecommendsVisualizationScaleType.Logarithmic,
-                _ => RecommendsVisualizationScaleType.Unknown
-            };
+                case "LINEAR":
+                    this.Type = RecommendsVisualizationScaleType.Linear;
+                    break;
+                case "LOGARITHMIC":
+                    this.Type = RecommendsVisualizationScaleType.Logarithmic;
+                    break;
+                default:
+                    this.Type = RecommendsVisualizationScaleType.Unknown;
+                    break;
+            }
             if (double.TryParse(spirts[1], out double f1)) this.F1 = f1;
             else this.F1 = 0d;
             if (double.TryParse(spirts[2], out double f2)) this.F2 = f2;
             else this.F2 = 0d;
         }
+
+        public override string ToString()
+        {
+            string typestring;
+            switch (Type)
+            {
+                case RecommendsVisualizationScaleType.Linear:
+                    typestring = "LINEAR";
+                    break;
+                case RecommendsVisualizationScaleType.Logarithmic:
+                    typestring = "LOGARITHMIC";
+                    break;
+                default:
+                    return string.Empty;
+            }
+            return string.Concat(typestring, ",", F1, ",", F2);
+        }
+
     }
 
     public enum RecommendsVisualizationScaleType
