@@ -28,6 +28,18 @@
             }
         }
 
+        public static Mode ConvertToEnum(string mode)
+        {
+            if (string.IsNullOrEmpty(mode) || mode.Length <= 0) return Mode.Unknown;
+            switch (mode[0])
+            {
+                case List:
+                    return Mode.L;
+                default:
+                    return Mode.Unknown;
+            }
+        }
+
         public static char ConvertToString(Mode fCSMode)
         {
             switch (fCSMode)

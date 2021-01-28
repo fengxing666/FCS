@@ -14,10 +14,20 @@ namespace FCS.Property
         /// 名称 PnN
         /// </summary>
         public string PnN { get; set; }
+        private uint _pnb;
         /// <summary>
         /// 数据位数 PnB
         /// </summary>
-        public uint PnB { get; set; }
+        public uint PnB
+        {
+            get { return _pnb; }
+            set
+            {
+                _pnb = value;
+                PnBByteLength = Convert.ToInt32(value / 8);
+            }
+        }
+        public int PnBByteLength { get; private set; }
         /// <summary>
         /// 放大类型 PnE解析
         /// </summary>
@@ -68,7 +78,7 @@ namespace FCS.Property
         /// <summary>
         /// 参数 n 的探测器电压
         /// </summary>
-        public double PnV { get; set; }
+        public double PnV { get; set; } = double.NaN;
         /// <summary>
         /// 数据类型
         /// </summary>
@@ -84,15 +94,13 @@ namespace FCS.Property
         /// 添加一个数据到列表
         /// </summary>
         /// <param name="bytes">字节数组</param>
-        /// <param name="byteOrd">排序方式</param>
-        public virtual void AddOneValue(byte[] bytes, ByteOrd byteOrd)
+        /// <param name="byteOrd">排序方式,默认Little,跟随windows</param>
+        public virtual void AddOneValue(byte[] bytes, ByteOrd byteOrd = ByteOrd.LittleEndian)
         {
             if (bytes == null || bytes.Length <= 0) return;
             if ((byteOrd == ByteOrd.BigEndian && BitConverter.IsLittleEndian) || (byteOrd == ByteOrd.LittleEndian && !BitConverter.IsLittleEndian)) bytes = bytes.Reverse().ToArray();
             switch (PnDATATYPE)
             {
-                case DataType.Unknown:
-                    break;
                 case DataType.I:
                     if (Values == null)
                     {
@@ -117,7 +125,7 @@ namespace FCS.Property
                     Values.Add(BitConverter.ToDouble(bytes, bytes.Length > 8 ? (bytes.Length - 8) : 0));
                     break;
                 default:
-                    break;
+                    throw new Exception("Can't analyse data,data type not supported");
             }
         }
 
@@ -159,13 +167,23 @@ namespace FCS.Property
         }
 
         /// <summary>
-        /// 线性放大 PnG 增益,只用于datatype=i
+        /// 线性放大 PnG 增益,3.2版本只用于datatype=i
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
         public virtual double PnGCalculation(ulong value)
         {
-            if (double.IsNaN(PnG) || PnG == 0d) return value;
+            if (double.IsNaN(PnG) || PnG <= 0d || PnG == 1d) return value;
+            return value / PnG;
+        }
+        public virtual double PnGCalculation(float value)
+        {
+            if (double.IsNaN(PnG) || PnG <= 0d || PnG == 1d) return value;
+            return value / PnG;
+        }
+        public virtual double PnGCalculation(double value)
+        {
+            if (double.IsNaN(PnG) || PnG <= 0d || PnG == 1d) return value;
             return value / PnG;
         }
 
@@ -182,7 +200,7 @@ namespace FCS.Property
                 {
                     foreach (byte item in Values)
                     {
-                        if (PnG != 0d) list.Add(PnGCalculation(item));
+                        if (!double.IsNaN(PnG) && PnG > 0d && PnG != 1d) list.Add(PnGCalculation(item));
                         else list.Add(PnECalculation(item));
                     }
                 }
@@ -190,7 +208,7 @@ namespace FCS.Property
                 {
                     foreach (ushort item in Values)
                     {
-                        if (PnG != 0d) list.Add(PnGCalculation(item));
+                        if (!double.IsNaN(PnG) && PnG > 0d && PnG != 1d) list.Add(PnGCalculation(item));
                         else list.Add(PnECalculation(item));
                     }
                 }
@@ -198,7 +216,7 @@ namespace FCS.Property
                 {
                     foreach (uint item in Values)
                     {
-                        if (PnG != 0d) list.Add(PnGCalculation(item));
+                        if (!double.IsNaN(PnG) && PnG > 0d && PnG != 1d) list.Add(PnGCalculation(item));
                         else list.Add(PnECalculation(item));
                     }
                 }
@@ -206,7 +224,7 @@ namespace FCS.Property
                 {
                     foreach (ulong item in Values)
                     {
-                        if (PnG != 0d) list.Add(PnGCalculation(item));
+                        if (!double.IsNaN(PnG) && PnG > 0d && PnG != 1d) list.Add(PnGCalculation(item));
                         else list.Add(PnECalculation(item));
                     }
                 }
@@ -216,13 +234,13 @@ namespace FCS.Property
             else if (PnDATATYPE == DataType.F)
             {
                 List<double> list = new List<double>();
-                foreach (float item in Values) list.Add(item);
+                foreach (float item in Values) list.Add(PnGCalculation(item));
                 return list;
             }
             else if (PnDATATYPE == DataType.D)
             {
                 List<double> list = new List<double>();
-                foreach (double item in Values) list.Add(item);
+                foreach (double item in Values) list.Add(PnGCalculation(item));
                 return list;
             }
             else throw new Exception("Data type not supported");

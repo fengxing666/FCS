@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace FCS
+﻿namespace FCS
 {
     public class Keys
     {
+        public const byte DelimiterByte = 0x0A;//默认文本段分隔符,换行符
         #region must
         public const string BeginDataKey = "$BEGINDATA";
         public const string ByteOrdKey = "$BYTEORD";
@@ -69,6 +66,7 @@ namespace FCS
         public const string VOLKey = "$VOL";
         #endregion
 
-        public const byte SpirtByte = 0x7c;
+
+        public const string UnicodeKey = "$UNICODE";//编码类型
     }
 }

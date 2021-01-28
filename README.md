@@ -1,30 +1,56 @@
 # FCS
-FCS文件解析帮助类，目前支持Mode为List，DataType为Integer、Float、Double 的3.1和3.0版本的FCS文件，暂时不支持保存操作
+FCS文件解析帮助类，目前支持DataType为I、F、D 的3.2版本，Mode为L的3.1、3.0版本的FCS文件。3.2版本没有Mode关键字，默认是List存储。详细信息请查看[官方文档](http://flowcyt.sourceforge.net/fcs/fcs32.pdf)
+<br/>
 
 ## 使用代码：
 ```
-IEnumerable<IFCS> fcslist = FCS.Factory.ReadFCSFile(@"C:\test.fcs");
+IEnumerable<FCS> fcslist = FCS.Factory.ReadFile(@"C:\test.fcs");//读取文件中全部数据集
+FCS firstDataset = FCS.Factory.ReadFileOneDataset(@"C:\test.fcs",out long nextData,0);//读取文件中第一个数据集
+FCS.Factory.SaveToFCS32(@"C:\test1.fcs",fcslist);//保存数据集到文件，3.2版本
+FCS.Factory.SaveToFCS31(@"C:\test2.fcs",fcslist);//保存数据集到文件，3.1版本
+FCS.Factory.SaveToFCS30(@"C:\test3.fcs",fcslist);//保存数据集到文件，3.0版本
  ```
-读取文件并返回FCS对象集合，通常一个FCS文件只有一个数据集
 
-## IFCS：主要输出对象，实现类有FCS3_0、FCS3_1
+## FCS：主要输出对象
  | 属性 | 含义 | 类型 | 说明 |
  | --- | --- | --- | --- |
  | TextSegment | 文本段和补充文本段 | Dictionary< string, string > | 文本段和补充文本段混合在一起，不受FCS文件的文本段长度限制 |
- | AnalysisSegment | 解析文本段 | Dictionary< string, string > | |
- | DataSegment | 数据段 | IEnumerable< IList > | IList里面的内容可能是double、float、int |
- | Params | 参数集合 | IList< Param > | FCS文件里面记录的参数集合，PAR就是该集合的长度，Param类包含了名称、放大类型、增益等属性 |
- | Version | FCS文件的版本 | string | FCS3.0/FCS3.1 |
- | PAR | 参数个数 | uint | 决定Params的长度 |
- | TOT | 数据量 | ulong | 数据段共有多少数据量 |
- | NextData | 下一个数据集起点位置 | long | 一个FCS文件可以有多个数据集，在第一个数据集中需要记录第二个数据的起点位置 |
+ | AnalysisSegment | 解析段 | Dictionary< string, string > | |
+ | Measurements | 数据段 | IList< Measurement > | Measurement是通道类，记录着通道的数据、参数等 |
+<br/>
+
+## Measurement：通道参数
+ | 属性 | 含义 | 类型 | 说明 |
+ | --- | --- | --- | --- |
+ | PnN | 名称 | string | 通道名称|
+ | PnB | 数据位数 | uint | 只支持能被8整除的数，DataType=F时为固定32，DataType=D时为固定64 |
+ |PnBByteLength|PnB/8|int|位数转字节数|
+ | PnE | 放大类型 | Amplification | DataType为D/F时，PnE固定为 0,0 |
+ | PnR | 最大值 | ulong | 参数值的区间。只用于DataType=I，因为F和D情况下，会超出这个范围|
+ | PnD | 建议可视化范围 | RecommendsVisualizationScale | FCS3.1中新增的可选属性 |
+ | PnF | 光学滤波器名称 | string | |
+ | PnG | 增益 | double | 3.2版本只能应用于DataType=I，DataType为F、D时，该值固定为1。3.1、3.0版本不受限制|
+ | PnL | 激发波长 | string | |
+ | PnO | 激发功率 | uint | |
+ | PnS | 全称 | string | |
+ | PnT | 探测器类型 | string | |
+ | PnV | 探测器电压 | double | |
+ |PnDATATYPE|该通道数据类型|DataType|3.2版本新增，区别默认数据类型|
+ |Values|该通道的数据集合|IList|内部值可能是double、float、ulong、uint、ushort、byte|
+ |AddOneValue(byte[] bytes, ByteOrd byteOrd = ByteOrd.LittleEndian)|向数据集中添加一个数据|void|第一个参数为要添加的数据（字节数组形式），DataType=I时，执行范围（PnR）过滤（v%PnR)|
+ |BitMask(T v)|范围过滤（v%PnR)|T|DataType=F、D时不过滤|
+ |PnECalculation(ulong value)|PnE对数放大计算|double|只用于DataType=I|
+ |PnGCalculation(T value)|PnG线性放大计算（value / PnG）|double|3.2版本只用于DataType=I|
+ |GetScaleValues()|获取放大前的刻度值|IList< double >||
+<br/>
 
 ## RecommendsVisualizationScale：推荐的可视化范围 PnD
  | 属性 | 含义 | 类型 | 说明 |
  | --- | --- | --- | --- |
  | Type | 类型 | RecommendsVisualizationScaleType | Linear/Logarithmic |
  | F1 | 最小值 | double | |
- | F1 | 最大值 | double | |
+ | F2 | 最大值 | double | |  
+<br/>
 
 ## Amplification：放大类型参数 PnE
  ***公式：v=10^（PowerNumber * xc /（PnR））* ZeroValue**
@@ -32,26 +58,19 @@ IEnumerable<IFCS> fcslist = FCS.Factory.ReadFCSFile(@"C:\test.fcs");
  | --- | --- | --- | --- |
  | PowerNumber | 10的次方数 | double | |
  | ZeroValue | 0对应的转换值 | double | |
+<br/>
 
-## Param：FCS参数
- | 属性 | 含义 | 类型 | 说明 |
- | --- | --- | --- | --- |
- | PnN | 名称 | string | |
- | PnB | 数据位数 | uint | DataType为ASCII时，表示字节数 |
- | PnE | 放大类型 | string | DataType为double/float时，PnE应固定为 0,0 |
- | AmplificationValue | 放大类型 | Amplification | PnE解析后的类 |
- | PnR | 最大值 | uint | 参数值的最大值，补偿等操作后可能会超过这个值 |
- | PnD | 建议可视化范围 | string | FCS3.1中新增的可选属性 |
- | RecommendsVisualizationScaleValue | 建议可视化范围 | RecommendsVisualizationScale | PnD解析后的类 |
- | PnF | 光学滤波器名称 | string | |
- | PnG | 增益 | double | |
- | PnL | 激发波长 | string | |
- | PnO | 激发功率 | uint | |
- | PnP | 发散光的百分比 | uint | |
- | PnS | 全称 | string | |
- | PnT | 探测器类型 | string | |
- | PnV | 探测器电压 | double | |
- 
-数据格式文件可在此下载 [Github](https://github.com/Lvwl-CN/FCS/tree/master/doc)、[Gitee](https://gitee.com/Lvwl-CN/FCS/tree/master/doc)
+## 其它
+FCS文件格式说明文档可在此下载 [Github](https://github.com/Lvwl-CN/FCS/tree/master/doc)、[Gitee](https://gitee.com/Lvwl-CN/FCS/tree/master/doc)；<br/>FCS文件可在此下载 [flowrepository](https://flowrepository.org/)
 
-FCS文件可在此下载 [flowrepository](https://flowrepository.org/)
+## 更新日志
+### 2.0.0
+1、更改输出对象FCS，输出对象无关文件信息（版本、段起止位置等）<br/>
+2、添加3.2版本的支持<br/>
+3、添加保存功能<br/>
+4、修复一些bug
+
+### 1.0.0
+1、添加读取和解析文件功能
+
+

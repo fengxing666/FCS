@@ -47,7 +47,7 @@ namespace FCS.File
         /// <summary>
         /// 文本段分隔符
         /// </summary>
-        public byte SpirtByte { get; set; }
+        public byte DelimiterByte { get; set; }
         /// <summary>
         /// 字节顺序
         /// </summary>
@@ -63,7 +63,7 @@ namespace FCS.File
         /// <summary>
         /// 数据量
         /// </summary>
-        public ulong TOT { get; set; }
+        public uint TOT { get; set; }
         /// <summary>
         /// 下一个数据集的起始位
         /// </summary>

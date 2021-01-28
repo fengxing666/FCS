@@ -70,8 +70,8 @@
 
     public enum RecommendsVisualizationScaleType
     {
-        Unknown,
-        Linear,
-        Logarithmic
+        Unknown = 0,
+        Linear = 1,
+        Logarithmic = 2
     }
 }
