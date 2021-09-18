@@ -63,7 +63,7 @@ namespace FCS.File
         /// <summary>
         /// 数据量
         /// </summary>
-        public uint TOT { get; set; }
+        public int TOT { get; set; }
         /// <summary>
         /// 下一个数据集的起始位
         /// </summary>

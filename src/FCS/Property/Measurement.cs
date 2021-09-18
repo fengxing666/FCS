@@ -95,7 +95,7 @@ namespace FCS.Property
         /// </summary>
         /// <param name="bytes">字节数组</param>
         /// <param name="byteOrd">排序方式,默认Little,跟随windows</param>
-        public virtual void AddOneValue(byte[] bytes, ByteOrd byteOrd = ByteOrd.LittleEndian)
+        public virtual void AddOneValue(byte[] bytes, int tot, ByteOrd byteOrd = ByteOrd.LittleEndian)
         {
             if (bytes == null || bytes.Length <= 0) return;
             if ((byteOrd == ByteOrd.BigEndian && BitConverter.IsLittleEndian) || (byteOrd == ByteOrd.LittleEndian && !BitConverter.IsLittleEndian)) bytes = bytes.Reverse().ToArray();
@@ -104,10 +104,10 @@ namespace FCS.Property
                 case DataType.I:
                     if (Values == null)
                     {
-                        if (PnB <= 8) Values = new List<byte>();
-                        else if (PnB > 8 && PnB <= 16) Values = new List<ushort>();
-                        else if (PnB > 16 && PnB <= 32) Values = new List<uint>();
-                        else if (PnB > 32 && PnB <= 64) Values = new List<ulong>();
+                        if (PnB <= 8) Values = new List<byte>(tot);
+                        else if (PnB > 8 && PnB <= 16) Values = new List<ushort>(tot);
+                        else if (PnB > 16 && PnB <= 32) Values = new List<uint>(tot);
+                        else if (PnB > 32 && PnB <= 64) Values = new List<ulong>(tot);
                         else throw new Exception("Can't analyse data,PnB is too big");
                     }
                     if (PnB <= 8) Values.Add(BitMask(bytes[bytes.Length - 1]));
@@ -117,11 +117,11 @@ namespace FCS.Property
                     else throw new Exception("Can't analyse data,PnB is too big");
                     break;
                 case DataType.F:
-                    if (Values == null) Values = new List<float>();
+                    if (Values == null) Values = new List<float>(tot);
                     Values.Add(BitConverter.ToSingle(bytes, bytes.Length > 4 ? (bytes.Length - 4) : 0));
                     break;
                 case DataType.D:
-                    if (Values == null) Values = new List<double>();
+                    if (Values == null) Values = new List<double>(tot);
                     Values.Add(BitConverter.ToDouble(bytes, bytes.Length > 8 ? (bytes.Length - 8) : 0));
                     break;
                 default:
@@ -188,63 +188,60 @@ namespace FCS.Property
         }
 
         /// <summary>
-        /// 获取放大前的刻度值
+        /// 通道值转刻度值
         /// </summary>
+        /// <param name="obj"></param>
         /// <returns></returns>
-        public virtual IList<double> GetScaleValues()
+        public virtual double ConvertChannelToScaleValue(object obj)
         {
             if (PnDATATYPE == DataType.I)
             {
-                List<double> list = new List<double>();
                 if (PnB <= 8)
                 {
-                    foreach (byte item in Values)
-                    {
-                        if (!double.IsNaN(PnG) && PnG > 0d && PnG != 1d) list.Add(PnGCalculation(item));
-                        else list.Add(PnECalculation(item));
-                    }
+                    var item = Convert.ToByte(obj);
+                    if (!double.IsNaN(PnG) && PnG > 0d && PnG != 1d) return PnGCalculation(item);
+                    else return PnECalculation(item);
                 }
                 else if (PnB > 8 && PnB <= 16)
                 {
-                    foreach (ushort item in Values)
-                    {
-                        if (!double.IsNaN(PnG) && PnG > 0d && PnG != 1d) list.Add(PnGCalculation(item));
-                        else list.Add(PnECalculation(item));
-                    }
+                    var item = Convert.ToUInt16(obj);
+                    if (!double.IsNaN(PnG) && PnG > 0d && PnG != 1d) return PnGCalculation(item);
+                    else return PnECalculation(item);
                 }
                 else if (PnB > 16 && PnB <= 32)
                 {
-                    foreach (uint item in Values)
-                    {
-                        if (!double.IsNaN(PnG) && PnG > 0d && PnG != 1d) list.Add(PnGCalculation(item));
-                        else list.Add(PnECalculation(item));
-                    }
+                    var item = Convert.ToUInt32(obj);
+                    if (!double.IsNaN(PnG) && PnG > 0d && PnG != 1d) return PnGCalculation(item);
+                    else return PnECalculation(item);
                 }
                 else if (PnB > 32 && PnB <= 64)
                 {
-                    foreach (ulong item in Values)
-                    {
-                        if (!double.IsNaN(PnG) && PnG > 0d && PnG != 1d) list.Add(PnGCalculation(item));
-                        else list.Add(PnECalculation(item));
-                    }
+                    var item = Convert.ToUInt64(obj);
+                    if (!double.IsNaN(PnG) && PnG > 0d && PnG != 1d) return PnGCalculation(item);
+                    else return PnECalculation(item);
                 }
                 else throw new Exception("Can't analyse data,PnB is too big");
-                return list;
             }
             else if (PnDATATYPE == DataType.F)
             {
-                List<double> list = new List<double>();
-                foreach (float item in Values) list.Add(PnGCalculation(item));
-                return list;
+                return PnGCalculation(Convert.ToSingle(obj));
             }
             else if (PnDATATYPE == DataType.D)
             {
-                List<double> list = new List<double>();
-                foreach (double item in Values) list.Add(PnGCalculation(item));
-                return list;
+                return PnGCalculation(Convert.ToDouble(obj));
             }
             else throw new Exception("Data type not supported");
         }
 
+        /// <summary>
+        /// 获取刻度值
+        /// </summary>
+        /// <returns></returns>
+        public virtual IList<double> GetScaleValues()
+        {
+            var list = new List<double>();
+            foreach (var obj in Values) list.Add(ConvertChannelToScaleValue(obj));
+            return list;
+        }
     }
 }

@@ -4,13 +4,13 @@
     <TargetFrameworks>netstandard2.0;net40;net5;</TargetFrameworks>
     <Authors>Lvwl</Authors>
     <Company>Lvwl</Company>
-    <Description>流式细胞仪数据文件FCS解析库</Description>
+    <Description>流式细胞仪数据文件FCS文件读写组件</Description>
     <PackageProjectUrl>https://gitee.com/Lvwl-CN/FCS</PackageProjectUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>FCS C# .NET 流式细胞仪数据文件解析库</PackageTags>
-    <Version>2.0.0</Version>
+    <Version>2.0.1</Version>
     <RepositoryUrl>https://gitee.com/Lvwl-CN/FCS</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>

@@ -36,11 +36,12 @@ FCS.Factory.SaveToFCS30(@"C:\test3.fcs",fcslist);//保存数据集到文件，3.
  | PnT | 探测器类型 | string | |
  | PnV | 探测器电压 | double | |
  |PnDATATYPE|该通道数据类型|DataType|3.2版本新增，区别默认数据类型|
- |Values|该通道的数据集合|IList|内部值可能是double、float、ulong、uint、ushort、byte|
+ |Values|该通道的通道值数据集合|IList|内部值可能是double、float、ulong、uint、ushort、byte|
  |AddOneValue(byte[] bytes, ByteOrd byteOrd = ByteOrd.LittleEndian)|向数据集中添加一个数据|void|第一个参数为要添加的数据（字节数组形式），DataType=I时，执行范围（PnR）过滤（v%PnR)|
  |BitMask(T v)|范围过滤（v%PnR)|T|DataType=F、D时不过滤|
  |PnECalculation(ulong value)|PnE对数放大计算|double|只用于DataType=I|
  |PnGCalculation(T value)|PnG线性放大计算（value / PnG）|double|3.2版本只用于DataType=I|
+ |ConvertChannelToScaleValue(object obj)|通道值转刻度值|double||
  |GetScaleValues()|获取放大前的刻度值|IList< double >||
 <br/>
 
@@ -64,6 +65,10 @@ FCS.Factory.SaveToFCS30(@"C:\test3.fcs",fcslist);//保存数据集到文件，3.
 FCS文件格式说明文档可在此下载 [Github](https://github.com/Lvwl-CN/FCS/tree/master/doc)、[Gitee](https://gitee.com/Lvwl-CN/FCS/tree/master/doc)；<br/>FCS文件可在此下载 [flowrepository](https://flowrepository.org/)
 
 ## 更新日志
+### 2.0.1
+1、添加通道值转刻度值方法
+2、数据解析时，实例化数组时设置数组的Capacity
+3、TOT属性类型更改为int
 ### 2.0.0
 1、更改输出对象FCS，输出对象无关文件信息（版本、段起止位置等）<br/>
 2、添加3.2版本的支持<br/>

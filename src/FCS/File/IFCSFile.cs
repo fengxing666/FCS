@@ -146,7 +146,7 @@ namespace FCS.File
             if (keyValues.ContainsKey(Keys.DataTypeKey)) parameter.DataType = DataTypeConvert.ConvertToEnum(keyValues[Keys.DataTypeKey]);
             if (keyValues.ContainsKey(Keys.NextDataKey) && long.TryParse(keyValues[Keys.NextDataKey], out long nextData)) parameter.NextData = nextData;
             if (keyValues.ContainsKey(Keys.PARKey) && uint.TryParse(keyValues[Keys.PARKey], out uint par)) parameter.PAR = par;
-            if (keyValues.ContainsKey(Keys.TOTKey) && uint.TryParse(keyValues[Keys.TOTKey], out uint tot)) parameter.TOT = tot;
+            if (keyValues.ContainsKey(Keys.TOTKey) && int.TryParse(keyValues[Keys.TOTKey], out int tot)) parameter.TOT = tot;
         }
         /// <summary>
         /// 解析数据集的通道参数
@@ -224,7 +224,7 @@ namespace FCS.File
         /// <param name="tot">每个通道的数据量</param>
         /// <param name="dataType">数据集的数据类型,整个数据集的默认数据类型</param>
         /// <param name="byteOrd">字节排序方式</param>
-        protected virtual void AnalyseData(Stream stream, long fileBeginOffset, long dataBegin, long dataEnd, IList<Measurement> measurements, uint tot, DataType dataType, ByteOrd byteOrd)
+        protected virtual void AnalyseData(Stream stream, long fileBeginOffset, long dataBegin, long dataEnd, IList<Measurement> measurements, int tot, DataType dataType, ByteOrd byteOrd)
         {
             if (measurements == null) throw new Exception("Measurement list object is null");
             if (dataType == DataType.Unknown) throw new Exception("FCS datatype is not supported");
@@ -236,7 +236,7 @@ namespace FCS.File
                 {
                     byte[] bytes = new byte[item.PnBByteLength];
                     if (item.PnBByteLength != stream.Read(bytes, 0, item.PnBByteLength)) throw new Exception("Read data segment failed,stream length is not enough");
-                    item.AddOneValue(bytes, byteOrd);
+                    item.AddOneValue(bytes, tot, byteOrd);
                 }
             }
         }
@@ -336,12 +336,12 @@ namespace FCS.File
             long allMeasurementBitLength = 0;
             foreach (var item in measurements) allMeasurementBitLength += item.PnB / 8;
             uint startOffsetForOne = 0;
-            MemoryStream stream = null;
+            MemoryStream stream = new MemoryStream();
+            stream.SetLength(allMeasurementBitLength * measurements[0].Values.Count);
             for (int j = 0; j < measurements.Count; j++)
             {
                 var item = measurements[j];
                 var bytelength = item.PnB / 8;
-                if (stream == null) stream = new MemoryStream(new byte[allMeasurementBitLength * item.Values.Count]);
                 for (int i = 0; i < item.Values.Count; i++)
                 {
                     var v = item.Values[i];

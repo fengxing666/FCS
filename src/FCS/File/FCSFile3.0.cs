@@ -49,8 +49,8 @@ namespace FCS.File
         /// <summary>
         /// 重置文本段中的一些参数，根据通道参数
         /// </summary>
-        /// <param name="measurements">通道集合</param>
         /// <param name="textSegment">文本段字典</param>
+        /// <param name="measurements">通道集合</param>
         protected override void ResetTextSegment(Dictionary<string, string> textSegment, IList<Measurement> measurements)
         {
             if (textSegment == null) throw new Exception("Dictionary can't be null");
