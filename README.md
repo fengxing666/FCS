@@ -1,3 +1,8 @@
+# 开源不易，感谢支持
+<div>
+    <img src=doc/zfb.jpg width=200/>
+    <img src=doc/wx.jpg width=200/>
+</div>
 # FCS
 FCS文件解析帮助类，目前支持DataType为I、F、D 的3.2版本，Mode为L的3.1、3.0版本的FCS文件。3.2版本没有Mode关键字，默认是List存储。详细信息请查看[官方文档](http://flowcyt.sourceforge.net/fcs/fcs32.pdf)
 <br/>
