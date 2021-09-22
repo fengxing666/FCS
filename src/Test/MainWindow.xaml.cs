@@ -41,24 +41,9 @@ namespace Test
                 {
                     list.AddRange(items);
                     TestData = items[0];
-                    chart.Parameters = TestData.Measurements;
-                    List<IList<double>> itemsource = new List<IList<double>>();
-                    int count = 0;
-                    foreach (var item in TestData.Measurements)
-                    {
-                        if (count == 0) count = item.Values.Count;
-                        itemsource.Add(item.GetScaleValues());
-                    }
-                    List<List<double>> temps = new List<List<double>>();
-                    for (int i = 0; i < count; i++)
-                    {
-                        if (temps.Count <= i) temps.Add(new List<double>());
-                        for (int j = 0; j < TestData.Measurements.Count; j++)
-                        {
-                            temps[i].Add(itemsource[j][i]);
-                        }
-                    }
-                    chart.ItemsSource = temps;
+                    c1.XSource = TestData.Measurements[1].Values;
+                    c1.YSource = TestData.Measurements[4].Values;
+                    
                 }
             }
         }

@@ -37,8 +37,8 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FCSChart, Version=1.0.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\FCSChart.1.0.3\lib\net45\FCSChart.dll</HintPath>
+    <Reference Include="FCSChart, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\FCSChart.2.0.0\lib\net45\FCSChart.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
