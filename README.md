@@ -1,12 +1,8 @@
 # 开源不易，感谢支持
-<div>
-    <img src=doc/zfb.jpg width=200/>
-    <img src=doc/wx.jpg width=200/>
-</div>
+![支付宝微信](doc/zfbwx.png)
 
 # FCS
 FCS文件解析帮助类，目前支持DataType为I、F、D 的3.2版本，Mode为L的3.1、3.0版本的FCS文件。3.2版本没有Mode关键字，默认是List存储。详细信息请查看[官方文档](http://flowcyt.sourceforge.net/fcs/fcs32.pdf)
-<br/>
 
 ## 使用代码：
 ```
@@ -23,7 +19,7 @@ FCS.Factory.SaveToFCS30(@"C:\test3.fcs",fcslist);//保存数据集到文件，3.
  | TextSegment | 文本段和补充文本段 | Dictionary< string, string > | 文本段和补充文本段混合在一起，不受FCS文件的文本段长度限制 |
  | AnalysisSegment | 解析段 | Dictionary< string, string > | |
  | Measurements | 数据段 | IList< Measurement > | Measurement是通道类，记录着通道的数据、参数等 |
-<br/>
+ | Compensation | 补偿 | Compensation | |
 
 ## Measurement：通道参数
  | 属性 | 含义 | 类型 | 说明 |
@@ -49,15 +45,13 @@ FCS.Factory.SaveToFCS30(@"C:\test3.fcs",fcslist);//保存数据集到文件，3.
  |PnGCalculation(T value)|PnG线性放大计算（value / PnG）|double|3.2版本只用于DataType=I|
  |ConvertChannelToScaleValue(object obj)|通道值转刻度值|double||
  |GetScaleValues()|获取放大前的刻度值|IList< double >||
-<br/>
 
 ## RecommendsVisualizationScale：推荐的可视化范围 PnD
  | 属性 | 含义 | 类型 | 说明 |
  | --- | --- | --- | --- |
  | Type | 类型 | RecommendsVisualizationScaleType | Linear/Logarithmic |
  | F1 | 最小值 | double | |
- | F2 | 最大值 | double | |  
-<br/>
+ | F2 | 最大值 | double | |
 
 ## Amplification：放大类型参数 PnE
  ***公式：v=10^（PowerNumber * xc /（PnR））* ZeroValue**
@@ -65,20 +59,27 @@ FCS.Factory.SaveToFCS30(@"C:\test3.fcs",fcslist);//保存数据集到文件，3.
  | --- | --- | --- | --- |
  | PowerNumber | 10的次方数 | double | |
  | ZeroValue | 0对应的转换值 | double | |
-<br/>
+
+ ## Compensation 补偿（3.0：COMP；3.1、3.2：SPILLOVER)
+ | 属性 | 含义 | 类型 | 说明 |
+ | --- | --- | --- | --- |
+ | MeasurementNames | 参数名称集合，需要与PnN相同 | string[] | |
+ | Coefficients | 补偿值集合 | float[][] | |
 
 ## 其它
-FCS文件格式说明文档可在此下载 [Github](https://github.com/Lvwl-CN/FCS/tree/master/doc)、[Gitee](https://gitee.com/Lvwl-CN/FCS/tree/master/doc)；<br/>FCS文件可在此下载 [flowrepository](https://flowrepository.org/)
+FCS文件格式说明文档可在此下载 [Github](https://github.com/Lvwl-CN/FCS/tree/master/doc)、[Gitee](https://gitee.com/Lvwl-CN/FCS/tree/master/doc)；  
+FCS文件可在此下载 [flowrepository](https://flowrepository.org/)
 
 ## 更新日志
 ### 2.0.1
-1、添加通道值转刻度值方法<br/>
-2、数据解析时，实例化数组时设置数组的Capacity<br/>
-3、TOT属性类型更改为int<br/>
+1、添加通道值转刻度值方法  
+2、数据解析时，实例化数组时设置数组的Capacity  
+3、TOT属性类型更改为int
+
 ### 2.0.0
-1、更改输出对象FCS，输出对象无关文件信息（版本、段起止位置等）<br/>
-2、添加3.2版本的支持<br/>
-3、添加保存功能<br/>
+1、更改输出对象FCS，输出对象无关文件信息（版本、段起止位置等）  
+2、添加3.2版本的支持  
+3、添加保存功能  
 4、修复一些bug
 
 ### 1.0.0
