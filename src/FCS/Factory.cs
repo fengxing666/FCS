@@ -20,29 +20,31 @@ namespace FCS
         /// 读取fcs文件，返回fcs对象集合
         /// </summary>
         /// <param name="filePath">文件路径</param>
+        /// <param name="notReadDataSegment">是否不读取数据段</param>
         /// <returns></returns>
-        public static IList<FCS> ReadFile(string filePath)
+        public static IList<FCS> ReadFile(string filePath, bool notReadDataSegment = false)
         {
             var fileInfo = new FileInfo(filePath);
             using (var fileStream = fileInfo.OpenRead())
             {
-                return Read(fileStream);
+                return Read(fileStream, notReadDataSegment);
             }
         }
         /// <summary>
         /// 读取fcs文件，返回fcs对象集合
         /// </summary>
         /// <param name="stream">可读取的流</param>
+        /// <param name="notReadDataSegment">是否不读取数据段</param>
         /// <returns></returns>
-        public static IList<FCS> Read(Stream stream)
+        public static IList<FCS> Read(Stream stream, bool notReadDataSegment = false)
         {
-            var first = ReadOneDataset(stream, out long next, 0);
+            var first = ReadOneDataset(stream, out long next, 0, notReadDataSegment);
             List<FCS> list = new List<FCS>() { first };
             long nextfromfilebegin = 0;
             while (next != 0)
             {
                 nextfromfilebegin += next;
-                var temp = ReadOneDataset(stream, out next, nextfromfilebegin);
+                var temp = ReadOneDataset(stream, out next, nextfromfilebegin, notReadDataSegment);
                 if (temp != null && temp.Measurements != null) list.Add(temp);
                 else break;
             }
@@ -55,13 +57,14 @@ namespace FCS
         /// <param name="filePath">文件路径</param>
         /// <param name="nextData">下一个数据集的起点，相对于此方法返回的数据集起点</param>
         /// <param name="fileBeginOffset">相对于文件起点的位置</param>
+        /// <param name="notReadDataSegment">是否不读取数据段</param>
         /// <returns></returns>
-        public static FCS ReadFileOneDataset(string filePath, out long nextData, long fileBeginOffset = 0)
+        public static FCS ReadFileOneDataset(string filePath, out long nextData, long fileBeginOffset = 0, bool notReadDataSegment = false)
         {
             var fileInfo = new FileInfo(filePath);
             using (var fileStream = fileInfo.OpenRead())
             {
-                return ReadOneDataset(fileStream, out nextData, fileBeginOffset);
+                return ReadOneDataset(fileStream, out nextData, fileBeginOffset, notReadDataSegment);
             }
         }
         /// <summary>
@@ -70,19 +73,20 @@ namespace FCS
         /// <param name="stream">文件流</param>
         /// <param name="nextData">下一个数据集的起点，相对于此方法返回的数据集起点</param>
         /// <param name="fileBeginOffset">相对于流起点的位置</param>
+        /// <param name="notReadDataSegment">是否不读取数据段</param>
         /// <returns></returns>
-        public static FCS ReadOneDataset(Stream stream, out long nextData, long fileBeginOffset = 0)
+        public static FCS ReadOneDataset(Stream stream, out long nextData, long fileBeginOffset = 0, bool notReadDataSegment = false)
         {
             if (!stream.CanRead || !stream.CanSeek) throw new Exception("Stream can't read or seek");
             var version = ReadVersion(stream, fileBeginOffset);
             switch (version)
             {
                 case "FCS3.2":
-                    return FCS32Server.ReadDataset(stream, out nextData, fileBeginOffset);
+                    return FCS32Server.ReadDataset(stream, out nextData, fileBeginOffset, notReadDataSegment);
                 case "FCS3.1":
-                    return FCS31Server.ReadDataset(stream, out nextData, fileBeginOffset);
+                    return FCS31Server.ReadDataset(stream, out nextData, fileBeginOffset, notReadDataSegment);
                 case "FCS3.0":
-                    return FCS30Server.ReadDataset(stream, out nextData, fileBeginOffset);
+                    return FCS30Server.ReadDataset(stream, out nextData, fileBeginOffset, notReadDataSegment);
                 default:
                     throw new Exception("Version not supported");
             }

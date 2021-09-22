@@ -255,8 +255,9 @@ namespace FCS.File
         /// <param name="stream">文件流</param>
         /// <param name="nextData">返回下一个数据集的起点</param>
         /// <param name="fileBeginOffset">数据集起始位,相对于流的起始位置</param>
+        /// <param name="notReadDataSegment">是否不读取数据段</param>
         /// <returns></returns>
-        public virtual FCS ReadDataset(Stream stream, out long nextData, long fileBeginOffset = 0)
+        public virtual FCS ReadDataset(Stream stream, out long nextData, long fileBeginOffset = 0, bool notReadDataSegment = false)
         {
             if (fileBeginOffset > stream.Length) throw new Exception("Offset is too big");
             FCS fcs = new FCS();
@@ -268,7 +269,7 @@ namespace FCS.File
             if (parameter.AnalysisBegin != 0 && parameter.AnalysisEnd != 0) AnalyseUTF8KeyValue(ReadBytes(stream, fileBeginOffset, parameter.AnalysisBegin, parameter.AnalysisEnd), fcs.AnalysisSegment, parameter.DelimiterByte);
             fcs.Measurements = AnalyseMeasurements(fcs.TextSegment, parameter.PAR, parameter.DataType);
             AnalyseCompensation(fcs);
-            AnalyseData(stream, fileBeginOffset, parameter.DataBegin, parameter.DataEnd, fcs.Measurements, parameter.TOT, parameter.DataType, parameter.ByteOrd);
+            if (!notReadDataSegment) AnalyseData(stream, fileBeginOffset, parameter.DataBegin, parameter.DataEnd, fcs.Measurements, parameter.TOT, parameter.DataType, parameter.ByteOrd);
             nextData = parameter.NextData;
             return fcs;
         }
