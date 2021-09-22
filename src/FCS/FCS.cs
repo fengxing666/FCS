@@ -23,5 +23,9 @@ namespace FCS
         /// 参数集合
         /// </summary>
         public IList<Measurement> Measurements { get; set; }
+        /// <summary>
+        /// 补偿
+        /// </summary>
+        public Compensation Compensation { get; set; }
     }
 }

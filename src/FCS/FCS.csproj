@@ -13,10 +13,19 @@
     <Version>2.0.1</Version>
     <RepositoryUrl>https://gitee.com/Lvwl-CN/FCS</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <PackageIcon>Logo.png</PackageIcon>
+    <PackageIconUrl />
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="OldIFCS.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\doc\Logo.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

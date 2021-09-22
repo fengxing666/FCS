@@ -65,7 +65,10 @@
         public const string UnstainedInfoKey = "$UNSTAINEDINFO";
         public const string VOLKey = "$VOL";
         #endregion
-
+        /// <summary>
+        /// 早期fcs文件的补偿关键字
+        /// </summary>
+        public const string COMPKey = "$COMP";
 
         public const string UnicodeKey = "$UNICODE";//编码类型
     }

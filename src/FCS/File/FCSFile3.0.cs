@@ -13,9 +13,9 @@ namespace FCS.File
         /// </summary>
         /// <param name="keyValues">文本段字典</param>
         /// <param name="parameter">需要完善的参数</param>
-        protected override void FillParameterFromTextSegment(Dictionary<string, string> keyValues, FCSFileParameter parameter)
+        protected override void FillFileParameterFromTextSegment(Dictionary<string, string> keyValues, FCSFileParameter parameter)
         {
-            base.FillParameterFromTextSegment(keyValues, parameter);
+            base.FillFileParameterFromTextSegment(keyValues, parameter);
             if (keyValues.ContainsKey(Keys.ModeKey) && ModeConvert.ConvertToEnum(keyValues[Keys.ModeKey]) != Mode.L) throw new Exception("Can't analyse,mode must be L");
             if (keyValues.ContainsKey(Keys.ByteOrdKey) && ByteOrderConvert.ConvertToEnum(keyValues[Keys.ByteOrdKey]) == ByteOrd.Unknown) throw new Exception("Can't analyse,byteord not supported");
             if (keyValues.ContainsKey(Keys.UnicodeKey) && !"UTF-8".Equals(keyValues[Keys.UnicodeKey].ToUpper()) && !"UTF8".Equals(keyValues[Keys.UnicodeKey].ToUpper())) throw new Exception("Can't analyse,unicode must be utf-8");
@@ -27,11 +27,20 @@ namespace FCS.File
         /// <param name="textSegment">文本段key-value集合</param>
         /// <param name="par">通道数量</param>
         /// <param name="defaultDataType">默认数据类型</param>
-        protected override IList<Measurement> AnalyseParams(Dictionary<string, string> textSegment, uint par, DataType defaultDataType)
+        protected override IList<Measurement> AnalyseMeasurements(Dictionary<string, string> textSegment, uint par, DataType defaultDataType)
         {
-            var measurements = base.AnalyseParams(textSegment, par, defaultDataType);
+            var measurements = base.AnalyseMeasurements(textSegment, par, defaultDataType);
             foreach (var item in measurements) item.PnDATATYPE = defaultDataType;
             return measurements;
+        }
+
+        /// <summary>
+        /// 解析补偿
+        /// </summary>
+        /// <param name="fcs"></param>
+        protected override void AnalyseCompensation(FCS fcs)
+        {
+            if (fcs.TextSegment.ContainsKey(Keys.COMPKey)) fcs.Compensation = new Compensation(fcs.TextSegment[Keys.COMPKey]);
         }
         #endregion
 
@@ -124,6 +133,17 @@ namespace FCS.File
                 if (!double.IsNaN(measurement.PnV) && measurement.PnV > 0) textSegment[pnvkey] = measurement.PnV.ToString();
                 else if (textSegment.ContainsKey(pnvkey)) textSegment.Remove(pnvkey);
             }
+        }
+        /// <summary>
+        /// 重置补偿
+        /// </summary>
+        /// <param name="fcs"></param>
+        protected override void ResetCompensation(FCS fcs)
+        {
+            if (fcs == null) return;
+            var temp = fcs.Compensation.ToString();
+            if (string.IsNullOrEmpty(temp)) return;
+            fcs.TextSegment[Keys.COMPKey] = temp;
         }
         #endregion
     }

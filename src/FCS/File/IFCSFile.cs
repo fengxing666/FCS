@@ -132,7 +132,7 @@ namespace FCS.File
         /// </summary>
         /// <param name="keyValues">文本段字典</param>
         /// <param name="parameter">需要完善的参数</param>
-        protected virtual void FillParameterFromTextSegment(Dictionary<string, string> keyValues, FCSFileParameter parameter)
+        protected virtual void FillFileParameterFromTextSegment(Dictionary<string, string> keyValues, FCSFileParameter parameter)
         {
             if (keyValues == null) throw new Exception("Text segment is null,can't analyse and fill parameter");
             if (parameter == null) throw new Exception("FCS parameter is null,can't edit");
@@ -154,7 +154,7 @@ namespace FCS.File
         /// <param name="textSegment">文本段key-value集合</param>
         /// <param name="par">通道数量</param>
         /// <param name="defaultDataType">默认数据类型</param>
-        protected virtual IList<Measurement> AnalyseParams(Dictionary<string, string> textSegment, uint par, DataType defaultDataType)
+        protected virtual IList<Measurement> AnalyseMeasurements(Dictionary<string, string> textSegment, uint par, DataType defaultDataType)
         {
             if (textSegment == null) throw new Exception("Text segment is null,can't analyse to measurement");
             if (par <= 0) throw new Exception("PAR can't be zero");
@@ -240,6 +240,13 @@ namespace FCS.File
                 }
             }
         }
+
+        /// <summary>
+        /// 解析补偿
+        /// </summary>
+        /// <param name="fcs">fcs对象</param>
+        protected abstract void AnalyseCompensation(FCS fcs);
+
         #endregion
 
         /// <summary>
@@ -256,10 +263,11 @@ namespace FCS.File
             FCSFileParameter parameter = new FCSFileParameter();
             ReadHead(stream, fileBeginOffset, parameter);
             AnalyseUTF8KeyValue(ReadBytes(stream, fileBeginOffset, parameter.TextBegin, parameter.TextEnd), fcs.TextSegment, parameter.DelimiterByte);
-            FillParameterFromTextSegment(fcs.TextSegment, parameter);
+            FillFileParameterFromTextSegment(fcs.TextSegment, parameter);
             if (parameter.STextBegin != 0 && parameter.STextEnd != 0) AnalyseUTF8KeyValue(ReadBytes(stream, fileBeginOffset, parameter.STextBegin, parameter.STextEnd), fcs.TextSegment, parameter.DelimiterByte);
             if (parameter.AnalysisBegin != 0 && parameter.AnalysisEnd != 0) AnalyseUTF8KeyValue(ReadBytes(stream, fileBeginOffset, parameter.AnalysisBegin, parameter.AnalysisEnd), fcs.AnalysisSegment, parameter.DelimiterByte);
-            fcs.Measurements = AnalyseParams(fcs.TextSegment, parameter.PAR, parameter.DataType);
+            fcs.Measurements = AnalyseMeasurements(fcs.TextSegment, parameter.PAR, parameter.DataType);
+            AnalyseCompensation(fcs);
             AnalyseData(stream, fileBeginOffset, parameter.DataBegin, parameter.DataEnd, fcs.Measurements, parameter.TOT, parameter.DataType, parameter.ByteOrd);
             nextData = parameter.NextData;
             return fcs;
@@ -369,6 +377,11 @@ namespace FCS.File
         /// <param name="measurements">通道集合</param>
         /// <param name="textSegment">文本段字典</param>
         protected abstract void ResetTextSegment(Dictionary<string, string> textSegment, IList<Measurement> measurements);
+        /// <summary>
+        /// 重置补偿参数到文本段
+        /// </summary>
+        /// <param name="fcs"></param>
+        protected abstract void ResetCompensation(FCS fcs);
 
         /// <summary>
         /// 拆分文本段，分成补充文本段和文本段。用于文本段过长时，无法用八位数字表达文本段位置
@@ -496,6 +509,7 @@ namespace FCS.File
         {
             #region 重置一些基本参数
             ResetTextSegment(fcs.TextSegment, fcs.Measurements);
+            ResetCompensation(fcs);
             if (fcs.TextSegment.ContainsKey(Keys.BeginAnalysisKey)) fcs.TextSegment.Remove(Keys.BeginAnalysisKey);//移除位置信息，后续计算
             if (fcs.TextSegment.ContainsKey(Keys.EndAnalysisKey)) fcs.TextSegment.Remove(Keys.EndAnalysisKey);
             if (fcs.TextSegment.ContainsKey(Keys.BeginSTextKey)) fcs.TextSegment.Remove(Keys.BeginSTextKey);
