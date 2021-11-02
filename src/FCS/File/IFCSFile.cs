@@ -175,40 +175,40 @@ namespace FCS.File
             {
                 Measurement param = new Measurement();
                 var pnn = string.Format(Keys.PnNKey, i);
-                if (textSegment.ContainsKey(pnn)) param.PnN = textSegment[pnn];
+                if (textSegment.ContainsKey(pnn)) param.Name = textSegment[pnn];
                 if (pnbtemp == 0)
                 {
                     var pnb = string.Format(Keys.PnBKey, i);
                     if (textSegment.ContainsKey(pnb) && uint.TryParse(textSegment[pnb], out uint pnbo))
                     {
                         if (pnbo % 8 != 0) throw new Exception("PnB value that are not divisible by 8 are not support");
-                        param.PnB = pnbo;
+                        param.BitNumber = pnbo;
                     }
                 }
-                else { param.PnB = pnbtemp; }
+                else { param.BitNumber = pnbtemp; }
                 var pne = string.Format(Keys.PnEKey, i);
-                if (textSegment.ContainsKey(pne)) param.PnE = new Amplification(textSegment[pne]);
+                if (textSegment.ContainsKey(pne)) param.Amplification = new Amplification(textSegment[pne]);
                 var pnr = string.Format(Keys.PnRKey, i);
-                if (textSegment.ContainsKey(pnr) && ulong.TryParse(textSegment[pnr], out ulong pnro)) param.PnR = pnro;
+                if (textSegment.ContainsKey(pnr) && ulong.TryParse(textSegment[pnr], out ulong pnro)) param.Range = pnro;
                 var pnd = string.Format(Keys.PnDKey, i);
-                if (textSegment.ContainsKey(pnd)) param.PnD = new RecommendsVisualizationScale(textSegment[pnd]);
+                if (textSegment.ContainsKey(pnd)) param.SuggestedVisualizationScale = new SuggestedVisualizationScale(textSegment[pnd]);
                 var pnf = string.Format(Keys.PnFKey, i);
-                if (textSegment.ContainsKey(pnf)) param.PnF = textSegment[pnf];
+                if (textSegment.ContainsKey(pnf)) param.OpticalFilter = textSegment[pnf];
                 var png = string.Format(Keys.PnGKey, i);
-                if (textSegment.ContainsKey(png) && double.TryParse(textSegment[png], out double pngo)) param.PnG = pngo;
+                if (textSegment.ContainsKey(png) && double.TryParse(textSegment[png], out double pngo)) param.Gain = pngo;
                 var pnl = string.Format(Keys.PnLKey, i);
-                if (textSegment.ContainsKey(pnl)) param.PnL = textSegment[pnl];
+                if (textSegment.ContainsKey(pnl)) param.Wavelength = textSegment[pnl];
                 var pno = string.Format(Keys.PnOKey, i);
-                if (textSegment.ContainsKey(pno) && uint.TryParse(textSegment[pno], out uint pnoo)) param.PnO = pnoo;
+                if (textSegment.ContainsKey(pno) && uint.TryParse(textSegment[pno], out uint pnoo)) param.Power = pnoo;
                 var pns = string.Format(Keys.PnSKey, i);
-                if (textSegment.ContainsKey(pns)) param.PnS = textSegment[pns];
+                if (textSegment.ContainsKey(pns)) param.LongName = textSegment[pns];
                 var pnt = string.Format(Keys.PnTKey, i);
-                if (textSegment.ContainsKey(pnt)) param.PnT = textSegment[pnt];
+                if (textSegment.ContainsKey(pnt)) param.Detector = textSegment[pnt];
                 var pnv = string.Format(Keys.PnVKey, i);
-                if (textSegment.ContainsKey(pnv) && double.TryParse(textSegment[pnv], out double pnvo)) param.PnV = pnvo;
+                if (textSegment.ContainsKey(pnv) && double.TryParse(textSegment[pnv], out double pnvo)) param.Voltage = pnvo;
                 var pndatatype = string.Format(Keys.PnDataTypeKey, i);
-                if (textSegment.ContainsKey(pndatatype) && textSegment[pndatatype].Length == 1) param.PnDATATYPE = DataTypeConvert.ConvertToEnum(textSegment[pndatatype][0]);
-                else param.PnDATATYPE = defaultDataType;
+                if (textSegment.ContainsKey(pndatatype) && textSegment[pndatatype].Length == 1) param.DataType = DataTypeConvert.ConvertToEnum(textSegment[pndatatype][0]);
+                else param.DataType = defaultDataType;
                 measurements.Add(param);
             }
             return measurements;
@@ -234,8 +234,8 @@ namespace FCS.File
             {
                 foreach (var item in measurements)
                 {
-                    byte[] bytes = new byte[item.PnBByteLength];
-                    if (item.PnBByteLength != stream.Read(bytes, 0, item.PnBByteLength)) throw new Exception("Read data segment failed,stream length is not enough");
+                    byte[] bytes = new byte[item.ByteNumber];
+                    if (item.ByteNumber != stream.Read(bytes, 0, item.ByteNumber)) throw new Exception("Read data segment failed,stream length is not enough");
                     item.AddOneValue(bytes, tot, byteOrd);
                 }
             }
@@ -343,14 +343,14 @@ namespace FCS.File
         {
             if (measurements == null || measurements.Count <= 0) throw new Exception("Measurement array is null or empty");
             long allMeasurementBitLength = 0;
-            foreach (var item in measurements) allMeasurementBitLength += item.PnB / 8;
+            foreach (var item in measurements) allMeasurementBitLength += item.BitNumber / 8;
             uint startOffsetForOne = 0;
             MemoryStream stream = new MemoryStream();
             stream.SetLength(allMeasurementBitLength * measurements[0].Values.Count);
             for (int j = 0; j < measurements.Count; j++)
             {
                 var item = measurements[j];
-                var bytelength = item.PnB / 8;
+                var bytelength = item.BitNumber / 8;
                 for (int i = 0; i < item.Values.Count; i++)
                 {
                     var v = item.Values[i];
@@ -528,7 +528,7 @@ namespace FCS.File
             #region 计算各个段的长度
             long headLength = headBytes.Length;
             long bitLength = 0L;
-            foreach (var item in fcs.Measurements) bitLength += item.PnB;
+            foreach (var item in fcs.Measurements) bitLength += item.BitNumber;
             long dataLength = (bitLength / 8) * Convert.ToInt32(fcs.TextSegment[Keys.TOTKey]);//数据段总长度
             long textLength = textStream.Length;
             long stextLength = 0L;

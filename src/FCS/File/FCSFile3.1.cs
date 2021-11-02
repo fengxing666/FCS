@@ -28,7 +28,7 @@ namespace FCS.File
         protected override IList<Measurement> AnalyseMeasurements(Dictionary<string, string> textSegment, uint par, DataType defaultDataType)
         {
             var measurements = base.AnalyseMeasurements(textSegment, par, defaultDataType);
-            foreach (var item in measurements) item.PnDATATYPE = defaultDataType;
+            foreach (var item in measurements) item.DataType = defaultDataType;
             return measurements;
         }
 
@@ -72,7 +72,7 @@ namespace FCS.File
             textSegment[Keys.ByteOrdKey] = BitConverter.IsLittleEndian ? ByteOrderConvert.LittleEndian : ByteOrderConvert.BigEndian;//windows系统默认
             textSegment[Keys.ModeKey] = "L";//保留字段，3.2版本已经取消，都是List类型
             textSegment[Keys.PARKey] = measurements.Count.ToString();//通道数量
-            var datatypes = measurements.Select(p => p.PnDATATYPE).Distinct().ToArray();
+            var datatypes = measurements.Select(p => p.DataType).Distinct().ToArray();
             DataType defaultDataType = DataType.Unknown;//取出默认数据类型
             if (datatypes.Contains(DataType.D)) defaultDataType = DataType.D;
             else if (datatypes.Contains(DataType.F)) defaultDataType = DataType.F;
@@ -93,46 +93,46 @@ namespace FCS.File
                     else if (measurement.Values[0] is ushort us) textSegment[string.Format(Keys.PnBKey, i)] = "16";
                     else if (measurement.Values[0] is byte ub) textSegment[string.Format(Keys.PnBKey, i)] = "8";
                     else throw new Exception("Measurement value's data type not supported");
-                    textSegment[string.Format(Keys.PnEKey, i)] = measurement.PnE.ToString();
+                    textSegment[string.Format(Keys.PnEKey, i)] = measurement.Amplification.ToString();
                 }
                 string pngkey = string.Format(Keys.PnGKey, i);
-                if (!double.IsNaN(measurement.PnG) && measurement.PnG > 0) textSegment[pngkey] = measurement.PnG.ToString();
+                if (!double.IsNaN(measurement.Gain) && measurement.Gain > 0) textSegment[pngkey] = measurement.Gain.ToString();
                 else textSegment[pngkey] = "1";
 
                 string pndatatypekey = string.Format(Keys.PnDataTypeKey, i);
-                if (defaultDataType != measurement.PnDATATYPE) textSegment[pndatatypekey] = DataTypeConvert.ConvertToString(measurement.PnDATATYPE);//PnDataType不是默认值
+                if (defaultDataType != measurement.DataType) textSegment[pndatatypekey] = DataTypeConvert.ConvertToString(measurement.DataType);//PnDataType不是默认值
                 else if (textSegment.ContainsKey(pndatatypekey)) textSegment.Remove(pndatatypekey);//PnDataType是默认值
-                if (string.IsNullOrEmpty(measurement.PnN)) throw new Exception("Measurment name can't be null or empty");
-                textSegment[string.Format(Keys.PnNKey, i)] = measurement.PnN;
+                if (string.IsNullOrEmpty(measurement.Name)) throw new Exception("Measurment name can't be null or empty");
+                textSegment[string.Format(Keys.PnNKey, i)] = measurement.Name;
 
-                textSegment[string.Format(Keys.PnRKey, i)] = measurement.PnR.ToString();
+                textSegment[string.Format(Keys.PnRKey, i)] = measurement.Range.ToString();
 
                 string pndkey = string.Format(Keys.PnDKey, i);
-                if (measurement.PnD.Type != RecommendsVisualizationScaleType.Unknown) textSegment[pndkey] = measurement.PnD.ToString();
+                if (measurement.SuggestedVisualizationScale.Type != SuggestedVisualizationScaleType.Unknown) textSegment[pndkey] = measurement.SuggestedVisualizationScale.ToString();
                 else if (textSegment.ContainsKey(pndkey)) textSegment.Remove(pndkey);
 
                 string pnfkey = string.Format(Keys.PnFKey, i);
-                if (!string.IsNullOrEmpty(measurement.PnF)) textSegment[pnfkey] = measurement.PnF;
+                if (!string.IsNullOrEmpty(measurement.OpticalFilter)) textSegment[pnfkey] = measurement.OpticalFilter;
                 else if (textSegment.ContainsKey(pnfkey)) textSegment.Remove(pnfkey);
 
                 string pnlkey = string.Format(Keys.PnLKey, i);
-                if (!string.IsNullOrEmpty(measurement.PnL)) textSegment[pnlkey] = measurement.PnL;
+                if (!string.IsNullOrEmpty(measurement.Wavelength)) textSegment[pnlkey] = measurement.Wavelength;
                 else if (textSegment.ContainsKey(pnlkey)) textSegment.Remove(pnlkey);
 
                 string pnokey = string.Format(Keys.PnOKey, i);
-                if (measurement.PnO != 0) textSegment[pnokey] = measurement.PnO.ToString();
+                if (measurement.Power != 0) textSegment[pnokey] = measurement.Power.ToString();
                 else if (textSegment.ContainsKey(pnokey)) textSegment.Remove(pnokey);
 
                 string pnskey = string.Format(Keys.PnSKey, i);
-                if (!string.IsNullOrEmpty(measurement.PnS)) textSegment[pnskey] = measurement.PnS;
+                if (!string.IsNullOrEmpty(measurement.LongName)) textSegment[pnskey] = measurement.LongName;
                 else if (textSegment.ContainsKey(pnskey)) textSegment.Remove(pnskey);
 
                 string pntkey = string.Format(Keys.PnTKey, i);
-                if (!string.IsNullOrEmpty(measurement.PnT)) textSegment[pntkey] = measurement.PnT;
+                if (!string.IsNullOrEmpty(measurement.Detector)) textSegment[pntkey] = measurement.Detector;
                 else if (textSegment.ContainsKey(pntkey)) textSegment.Remove(pntkey);
 
                 string pnvkey = string.Format(Keys.PnVKey, i);
-                if (!double.IsNaN(measurement.PnV) && measurement.PnV > 0) textSegment[pnvkey] = measurement.PnV.ToString();
+                if (!double.IsNaN(measurement.Voltage) && measurement.Voltage > 0) textSegment[pnvkey] = measurement.Voltage.ToString();
                 else if (textSegment.ContainsKey(pnvkey)) textSegment.Remove(pnvkey);
             }
         }

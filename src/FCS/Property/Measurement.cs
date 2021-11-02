@@ -1,45 +1,64 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 namespace FCS.Property
 {
+    public partial class Measurement : INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler PropertyChanged;
+        public void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
     /// <summary>
     /// FCS参数必须属性
     /// </summary>
     public partial class Measurement
     {
+        private string name;
         /// <summary>
         /// 名称 PnN
         /// </summary>
-        public string PnN { get; set; }
-        private uint _pnb;
+        public string Name { get { return name; } set { name = value; OnPropertyChanged("Name"); } }
+
+        private uint bitNumber;
         /// <summary>
         /// 数据位数 PnB
         /// </summary>
-        public uint PnB
+        public uint BitNumber
         {
-            get { return _pnb; }
+            get { return bitNumber; }
             set
             {
-                _pnb = value;
-                PnBByteLength = Convert.ToInt32(value / 8);
+                bitNumber = value;
+                ByteNumber = Convert.ToInt32(value / 8);
+                OnPropertyChanged("BitNumber");
+                OnPropertyChanged("ByteNumber");
             }
         }
-        public int PnBByteLength { get; private set; }
+        public int ByteNumber { get; private set; }
+
+        private Amplification amplification;
         /// <summary>
         /// 放大类型 PnE解析
         /// </summary>
-        public Amplification PnE { get; set; }
+        public Amplification Amplification { get { return amplification; } set { amplification = value; OnPropertyChanged("Amplification"); } }
+
+        private ulong range;
         /// <summary>
         /// 范围 PnR 型号值得最大值
         /// </summary>
-        public ulong PnR { get; set; }
+        public ulong Range { get { return range; } set { range = value; OnPropertyChanged("Range"); } }
+
+        private IList values;
         /// <summary>
         /// 用于记录的数据集合
         /// </summary>
-        public IList Values { get; set; }
+        public IList Values { get { return values; } set { values = value; OnPropertyChanged("Values"); } }
     }
 
     /// <summary>
@@ -47,42 +66,59 @@ namespace FCS.Property
     /// </summary>
     public partial class Measurement
     {
+        private SuggestedVisualizationScale suggestedVisualizationScale;
         /// <summary>
         /// 参数 n 的建议可视化比例 解析 PnD
         /// </summary>
-        public RecommendsVisualizationScale PnD { get; set; }
+        public SuggestedVisualizationScale SuggestedVisualizationScale { get { return suggestedVisualizationScale; } set { suggestedVisualizationScale = value; OnPropertyChanged("SuggestedVisualizationScale"); } }
+
+        private string opticalFilter;
         /// <summary>
         /// 参数 n 的光学滤波器的名称
         /// </summary>
-        public string PnF { get; set; }
+        public string OpticalFilter { get { return opticalFilter; } set { opticalFilter = value; OnPropertyChanged("OpticalFilter"); } }
+
+        private double gain = double.NaN;
         /// <summary>
         /// 用于获取参数 n 的放大器增益
         /// </summary>
-        public double PnG { get; set; } = double.NaN;
+        public double Gain { get { return gain; } set { gain = value; OnPropertyChanged("Gain"); } }
+
+        private string wavelength;
         /// <summary>
         /// 参数 n 的激发波长
         /// </summary>
-        public string PnL { get; set; }
+        public string Wavelength { get { return wavelength; } set { wavelength = value; OnPropertyChanged("Wavelength"); } }
+
+        private uint power;
         /// <summary>
         /// 参数 n 的激发功率
         /// </summary>
-        public uint PnO { get; set; }
+        public uint Power { get { return power; } set { power = value; OnPropertyChanged("Power"); } }
+
+        private string longName;
         /// <summary>
         /// 用于参数 n 的名称
         /// </summary>
-        public string PnS { get; set; }
+        public string LongName { get { return longName; } set { longName = value; OnPropertyChanged("LongName"); } }
+
+        private string detector;
         /// <summary>
         /// 参数 n 的探测器类型
         /// </summary>
-        public string PnT { get; set; }
+        public string Detector { get { return detector; } set { detector = value; OnPropertyChanged("Detector"); } }
+
+        private double voltage = double.NaN;
         /// <summary>
         /// 参数 n 的探测器电压
         /// </summary>
-        public double PnV { get; set; } = double.NaN;
+        public double Voltage { get { return voltage; } set { voltage = value; OnPropertyChanged("Voltage"); } }
+
+        private DataType dataType;
         /// <summary>
         /// 数据类型
         /// </summary>
-        public DataType PnDATATYPE { get; set; }
+        public DataType DataType { get { return dataType; } set { dataType = value; OnPropertyChanged("DataType"); } }
     }
 
     /// <summary>
@@ -99,21 +135,21 @@ namespace FCS.Property
         {
             if (bytes == null || bytes.Length <= 0) return;
             if ((byteOrd == ByteOrd.BigEndian && BitConverter.IsLittleEndian) || (byteOrd == ByteOrd.LittleEndian && !BitConverter.IsLittleEndian)) bytes = bytes.Reverse().ToArray();
-            switch (PnDATATYPE)
+            switch (DataType)
             {
                 case DataType.I:
                     if (Values == null)
                     {
-                        if (PnB <= 8) Values = new List<byte>(tot);
-                        else if (PnB > 8 && PnB <= 16) Values = new List<ushort>(tot);
-                        else if (PnB > 16 && PnB <= 32) Values = new List<uint>(tot);
-                        else if (PnB > 32 && PnB <= 64) Values = new List<ulong>(tot);
+                        if (BitNumber <= 8) Values = new List<byte>(tot);
+                        else if (BitNumber > 8 && BitNumber <= 16) Values = new List<ushort>(tot);
+                        else if (BitNumber > 16 && BitNumber <= 32) Values = new List<uint>(tot);
+                        else if (BitNumber > 32 && BitNumber <= 64) Values = new List<ulong>(tot);
                         else throw new Exception("Can't analyse data,PnB is too big");
                     }
-                    if (PnB <= 8) Values.Add(BitMask(bytes[bytes.Length - 1]));
-                    else if (PnB > 8 && PnB <= 16) Values.Add(BitMask(BitConverter.ToUInt16(bytes, bytes.Length > 2 ? (bytes.Length - 2) : 0)));
-                    else if (PnB > 16 && PnB <= 32) Values.Add(BitMask(BitConverter.ToUInt32(bytes, bytes.Length > 4 ? (bytes.Length - 4) : 0)));
-                    else if (PnB > 32 && PnB <= 64) Values.Add(BitMask(BitConverter.ToUInt64(bytes, bytes.Length > 8 ? (bytes.Length - 8) : 0)));
+                    if (BitNumber <= 8) Values.Add(BitMask(bytes[bytes.Length - 1]));
+                    else if (BitNumber > 8 && BitNumber <= 16) Values.Add(BitMask(BitConverter.ToUInt16(bytes, bytes.Length > 2 ? (bytes.Length - 2) : 0)));
+                    else if (BitNumber > 16 && BitNumber <= 32) Values.Add(BitMask(BitConverter.ToUInt32(bytes, bytes.Length > 4 ? (bytes.Length - 4) : 0)));
+                    else if (BitNumber > 32 && BitNumber <= 64) Values.Add(BitMask(BitConverter.ToUInt64(bytes, bytes.Length > 8 ? (bytes.Length - 8) : 0)));
                     else throw new Exception("Can't analyse data,PnB is too big");
                     break;
                 case DataType.F:
@@ -136,23 +172,23 @@ namespace FCS.Property
         /// <returns></returns>
         public virtual byte BitMask(byte value)
         {
-            if (PnR == 0) return value;
-            return Convert.ToByte(value % PnR);
+            if (Range == 0) return value;
+            return Convert.ToByte(value % Range);
         }
         public virtual ushort BitMask(ushort value)
         {
-            if (PnR == 0) return value;
-            return Convert.ToUInt16(value % PnR);
+            if (Range == 0) return value;
+            return Convert.ToUInt16(value % Range);
         }
         public virtual uint BitMask(uint value)
         {
-            if (PnR == 0) return value;
-            return Convert.ToUInt32(value % PnR);
+            if (Range == 0) return value;
+            return Convert.ToUInt32(value % Range);
         }
         public virtual ulong BitMask(ulong value)
         {
-            if (PnR == 0) return value;
-            return value % PnR;
+            if (Range == 0) return value;
+            return value % Range;
         }
 
         /// <summary>
@@ -162,8 +198,8 @@ namespace FCS.Property
         /// <returns></returns>
         public virtual double PnECalculation(ulong value)
         {
-            if (PnR == 0 || (this.PnE.PowerNumber == 0 && this.PnE.ZeroValue == 0)) return value;
-            return Math.Pow(10, this.PnE.PowerNumber * value / PnR) * (PnE.ZeroValue == 0d ? 1 : PnE.ZeroValue);
+            if (Range == 0 || (this.Amplification.PowerNumber == 0 && this.Amplification.ZeroValue == 0)) return value;
+            return Math.Pow(10, this.Amplification.PowerNumber * value / Range) * (Amplification.ZeroValue == 0d ? 1 : Amplification.ZeroValue);
         }
 
         /// <summary>
@@ -173,18 +209,18 @@ namespace FCS.Property
         /// <returns></returns>
         public virtual double PnGCalculation(ulong value)
         {
-            if (double.IsNaN(PnG) || PnG <= 0d || PnG == 1d) return value;
-            return value / PnG;
+            if (double.IsNaN(Gain) || Gain <= 0d || Gain == 1d) return value;
+            return value / Gain;
         }
         public virtual double PnGCalculation(float value)
         {
-            if (double.IsNaN(PnG) || PnG <= 0d || PnG == 1d) return value;
-            return value / PnG;
+            if (double.IsNaN(Gain) || Gain <= 0d || Gain == 1d) return value;
+            return value / Gain;
         }
         public virtual double PnGCalculation(double value)
         {
-            if (double.IsNaN(PnG) || PnG <= 0d || PnG == 1d) return value;
-            return value / PnG;
+            if (double.IsNaN(Gain) || Gain <= 0d || Gain == 1d) return value;
+            return value / Gain;
         }
 
         /// <summary>
@@ -194,39 +230,39 @@ namespace FCS.Property
         /// <returns></returns>
         public virtual double ConvertChannelToScaleValue(object obj)
         {
-            if (PnDATATYPE == DataType.I)
+            if (DataType == DataType.I)
             {
-                if (PnB <= 8)
+                if (BitNumber <= 8)
                 {
                     var item = Convert.ToByte(obj);
-                    if (!double.IsNaN(PnG) && PnG > 0d && PnG != 1d) return PnGCalculation(item);
+                    if (!double.IsNaN(Gain) && Gain > 0d && Gain != 1d) return PnGCalculation(item);
                     else return PnECalculation(item);
                 }
-                else if (PnB > 8 && PnB <= 16)
+                else if (BitNumber > 8 && BitNumber <= 16)
                 {
                     var item = Convert.ToUInt16(obj);
-                    if (!double.IsNaN(PnG) && PnG > 0d && PnG != 1d) return PnGCalculation(item);
+                    if (!double.IsNaN(Gain) && Gain > 0d && Gain != 1d) return PnGCalculation(item);
                     else return PnECalculation(item);
                 }
-                else if (PnB > 16 && PnB <= 32)
+                else if (BitNumber > 16 && BitNumber <= 32)
                 {
                     var item = Convert.ToUInt32(obj);
-                    if (!double.IsNaN(PnG) && PnG > 0d && PnG != 1d) return PnGCalculation(item);
+                    if (!double.IsNaN(Gain) && Gain > 0d && Gain != 1d) return PnGCalculation(item);
                     else return PnECalculation(item);
                 }
-                else if (PnB > 32 && PnB <= 64)
+                else if (BitNumber > 32 && BitNumber <= 64)
                 {
                     var item = Convert.ToUInt64(obj);
-                    if (!double.IsNaN(PnG) && PnG > 0d && PnG != 1d) return PnGCalculation(item);
+                    if (!double.IsNaN(Gain) && Gain > 0d && Gain != 1d) return PnGCalculation(item);
                     else return PnECalculation(item);
                 }
                 else throw new Exception("Can't analyse data,PnB is too big");
             }
-            else if (PnDATATYPE == DataType.F)
+            else if (DataType == DataType.F)
             {
                 return PnGCalculation(Convert.ToSingle(obj));
             }
-            else if (PnDATATYPE == DataType.D)
+            else if (DataType == DataType.D)
             {
                 return PnGCalculation(Convert.ToDouble(obj));
             }
