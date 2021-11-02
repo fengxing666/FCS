@@ -24,20 +24,20 @@ FCS.Factory.SaveToFCS30(@"C:\test3.fcs",fcslist);//保存数据集到文件，3.
 ## Measurement：通道参数
  | 属性 | 含义 | 类型 | 说明 |
  | --- | --- | --- | --- |
- | PnN | 名称 | string | 通道名称|
- | PnB | 数据位数 | uint | 只支持能被8整除的数，DataType=F时为固定32，DataType=D时为固定64 |
- |PnBByteLength|PnB/8|int|位数转字节数|
- | PnE | 放大类型 | Amplification | DataType为D/F时，PnE固定为 0,0 |
- | PnR | 最大值 | ulong | 参数值的区间。只用于DataType=I，因为F和D情况下，会超出这个范围|
- | PnD | 建议可视化范围 | RecommendsVisualizationScale | FCS3.1中新增的可选属性 |
- | PnF | 光学滤波器名称 | string | |
- | PnG | 增益 | double | 3.2版本只能应用于DataType=I，DataType为F、D时，该值固定为1。3.1、3.0版本不受限制|
- | PnL | 激发波长 | string | |
- | PnO | 激发功率 | uint | |
- | PnS | 全称 | string | |
- | PnT | 探测器类型 | string | |
- | PnV | 探测器电压 | double | |
- |PnDATATYPE|该通道数据类型|DataType|3.2版本新增，区别默认数据类型|
+ | Name | 名称 | string | 通道名称|
+ | BitNumber | 数据位数 | uint | 只支持能被8整除的数，DataType=F时为固定32，DataType=D时为固定64 |
+ |ByteNumber|BitNumber/8|int|位数转字节数|
+ | Amplification | 放大类型 | Amplification | DataType为D/F时，Amplification固定为 0,0 |
+ | Range | 最大值 | ulong | 参数值的区间。只用于DataType=I，因为F和D情况下，会超出这个范围|
+ | SuggestedVisualizationScale | 建议可视化范围 | SuggestedVisualizationScale | FCS3.1中新增的可选属性 |
+ | OpticalFilter | 光学滤波器名称 | string | |
+ | Gain | 增益 | double | 3.2版本只能应用于DataType=I，DataType为F、D时，该值固定为1。3.1、3.0版本不受限制|
+ | Wavelength | 激发波长 | string | |
+ | Power | 激发功率 | uint | |
+ | LongName | 全称 | string | |
+ | Detector | 探测器类型 | string | |
+ | Voltage | 探测器电压 | double | |
+ |DataType|该通道数据类型|DataType|3.2版本新增，区别默认数据类型|
  |Values|该通道的通道值数据集合|IList|内部值可能是double、float、ulong、uint、ushort、byte|
  |AddOneValue(byte[] bytes, ByteOrd byteOrd = ByteOrd.LittleEndian)|向数据集中添加一个数据|void|第一个参数为要添加的数据（字节数组形式），DataType=I时，执行范围（PnR）过滤（v%PnR)|
  |BitMask(T v)|范围过滤（v%PnR)|T|DataType=F、D时不过滤|
@@ -46,10 +46,10 @@ FCS.Factory.SaveToFCS30(@"C:\test3.fcs",fcslist);//保存数据集到文件，3.
  |ConvertChannelToScaleValue(object obj)|通道值转刻度值|double||
  |GetScaleValues()|获取放大前的刻度值|IList< double >||
 
-## RecommendsVisualizationScale：推荐的可视化范围 PnD
+## SuggestedVisualizationScale：推荐的可视化范围 PnD
  | 属性 | 含义 | 类型 | 说明 |
  | --- | --- | --- | --- |
- | Type | 类型 | RecommendsVisualizationScaleType | Linear/Logarithmic |
+ | Type | 类型 | SuggestedVisualizationScaleType | Linear/Logarithmic |
  | F1 | 最小值 | double | |
  | F2 | 最大值 | double | |
 
@@ -71,9 +71,13 @@ FCS文件格式说明文档可在此下载 [Github](https://github.com/Lvwl-CN/F
 FCS文件可在此下载 [flowrepository](https://flowrepository.org/)
 
 ## 更新日志
+### 2.0.2
+1、规范属性名称  
+2、Measurement类实现INotifyPropertyChanged接口
+
 ### 2.0.1
 1、添加通道值转刻度值方法  
-2、数据解析时，实例化数组时设置数组的Capacity  
+2、数据解析时，实例化数组时设置数组的Capacity属性  
 3、TOT属性类型更改为int
 
 ### 2.0.0
